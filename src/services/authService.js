@@ -10,9 +10,13 @@ const signup = async (formData) => {
       body: JSON.stringify(formData),
     });
     const json = await res.json();
+
     if (json.err) {
       throw new Error(json.err);
     }
+
+    localStorage.setItem('token', json.token); // add this line to store the JWT token in localStorage
+
     return json;
   } catch (err) {
     console.log(err);
@@ -34,6 +38,7 @@ const signin = async (user) => {
     }
 
     if (json.token) {
+      localStorage.setItem('token', json.token); // add this line to store the JWT token in localStorage
       const user = JSON.parse(atob(json.token.split('.')[1]));
       return user;
     }
@@ -43,4 +48,11 @@ const signin = async (user) => {
   }
 };
 
-export { signup, signin };
+const getUser = () =>  {
+  const token = localStorage.getItem('token');
+  if (!token) return null;
+  const user = JSON.parse(atob(token.split('.')[1]));
+  return user;
+}
+
+export { signup, signin, getUser };
